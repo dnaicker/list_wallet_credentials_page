@@ -1,30 +1,30 @@
-const ngrok_url = "http://2ec5-105-226-150-99.ngrok.io";
+const ngrok_url = "http://f65a-105-226-241-70.ngrok.io";
 const auth_token = "CiVodHRwczovL3RyaW5zaWMuaWQvc2VjdXJpdHkvdjEvb2Jlcm9uEkwKKnVybjp0cmluc2ljOndhbGxldHM6VW45TGpFNUVjN0ZCUFRvNzFURFpVQSIedXJuOnRyaW5zaWM6ZWNvc3lzdGVtczpkZWZhdWx0GjCAevCcnadUa3HuncGb_YN6BFwU-jgBzgZZHR4hABloaRWyEVo2T1uqFz0lOTWSrf0iAA"
 let select_template_id = null;
 
 // ------------------------------
 // on load
-$(document).ready(function () { 
-	$( "#modal_load" ).load( "modal.html" );
+$(document).ready(function () {
+	$("#modal_load").load("modal.html");
 	// create dropdown of template ids
 	get_credentials_for_wallet();
 });
 
 var clipboard = new ClipboardJS('.copy-btn');
 
-clipboard.on('success', function(e) {
-    console.info('Action:', e.action);
-    console.info('Text:', e.text);
-    console.info('Trigger:', e.trigger);
-		// document.execCommand("copy");
-		navigator.clipboard.writeText(e.text);
+clipboard.on('success', function (e) {
+	console.info('Action:', e.action);
+	console.info('Text:', e.text);
+	console.info('Trigger:', e.trigger);
+	// document.execCommand("copy");
+	navigator.clipboard.writeText(e.text);
 
-    // e.clearSelection();
+	// e.clearSelection();
 });
 
-clipboard.on('error', function(e) {
-    console.error('Action:', e.action);
-    console.error('Trigger:', e.trigger);
+clipboard.on('error', function (e) {
+	console.error('Action:', e.action);
+	console.error('Trigger:', e.trigger);
 });
 
 // ------------------------------
@@ -32,8 +32,8 @@ async function get_credentials_for_wallet() {
 	let data = {};
 
 	data['auth_token'] = auth_token;
-	
-	data['query'] =  "SELECT c.id, c.type, c.data FROM c";
+
+	data['query'] = "SELECT c.id, c.type, c.data FROM c";
 
 	$.ajax({
 		dataType: 'json',
@@ -43,10 +43,10 @@ async function get_credentials_for_wallet() {
 		success: function (result) {
 			console.log(result);
 			const arr = parse_items(result.items);
-			
+
 			load_table(arr);
 		},
-		error: function(result) {
+		error: function (result) {
 			show_modal('Error', 'Server could not complete request.');
 		}
 	});
@@ -56,8 +56,8 @@ async function get_credentials_for_wallet() {
 // ------------------------------
 function parse_items(data) {
 	let arr = [];
-	
-	for(item in data) {
+
+	for (item in data) {
 		let obj = JSON.parse(data[item]);
 		arr.push(obj);
 	}
@@ -69,44 +69,99 @@ function parse_items(data) {
 function load_table(data) {
 	$('#list_credentials').bootstrapTable('destroy').bootstrapTable({
 		data: data,
-		// dataToggle: true,
-		// dataDetailView: true,
-  	// dataDetailViewIcon: true,
-		// dataDetailFormatter: function (index, row) {
-		// 	var html = []
-			
-		// 	$.each(row, function (key, value) {
-		// 		html.push('<p><b>' + key + ':</b> ' + value + '</p>')
-		// 	})
-			
-		// 	return html.join('')
-		// },
+		detailView: "true",
+		detailViewByClick: "true",
+		detailFormatter: function (index, row) {
+			let data = 	start_process_table(index, row);
+			console.log('start data', data)
+			return data;
+		},
 		columns: [
 			[{
 				field: 'id',
 				title: 'Credential Id',
-				formatter: function(value, row) {
+				formatter: function (value, row) {
 					return "<a href='javascript:void(0)' class='view_credential'>" + value + "<a>";
 				},
 				events: window.operateEvents,
-			}, 
+			},
 			{
 				field: '',
 				title: 'Actions',
 				align: 'center',
 				events: window.operateEvents,
-				formatter: function(){
+				formatter: function () {
 					let arr = [];
 
 					arr.push("<button class='btn btn-primary btn-sm generate_proof'>Generate Proof</button>");
-					
+
 					return arr.join("");
-					// display action buttons
-					// create credential proof
 				}
 			}]
 		]
 	})
+}
+
+
+// ------------------------------
+async function start_process_table (index, row) {
+
+	let myPromise = process_table(index, row);
+
+	let data = myPromise.then(
+		function (value) {
+			return value;
+		});
+
+	return data;
+}
+
+// ------------------------------
+function process_table(index, row) {
+	return new Promise(function (resolve, reject) {
+		let arr = []
+		let data = row.data;
+		// console.log(typeof row.data);
+
+		if (typeof row.data === 'string') {
+			data = JSON.parse(row.data);
+		}
+
+		loop_through_data(data, arr);
+
+		$.get(data.credentialSchema[0].id, function (data, status) {
+			
+			loop_through_data(data, arr);
+
+			resolve(arr.join(''))
+		});
+
+		// arr.push('<div class="form-check form-switch">');
+		// arr.push('<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">');
+		// arr.push('<label class="form-check-label" for="flexSwitchCheckDefault">Default switch checkbox input</label>');
+
+		// arr.push('</div>');
+	});
+}
+
+// ------------------------------
+function loop_through_data(data, arr) {
+	$.each(data, function (key, value) {
+		if (typeof value === 'object') {
+			arr.push('<p><b>' + key + ':</b></p>');
+			$.each(value, function (idx, val) {
+				if (typeof idx === 'number') {
+					arr.push('<li>' + val + '</li>')
+				} else {
+					arr.push('<li><u>' + idx + '</u>: ' + val + '</li>')
+				}
+			});
+			arr.push('<br/>')
+		} else {
+			arr.push('<p><b>' + key + ':</b> ' + value + '</p>')
+		}
+	})
+	return arr;
 }
 
 // ------------------------------
@@ -126,11 +181,11 @@ window.operateEvents = {
 			type: "POST",
 			success: function (result) {
 				console.log(result);
-				show_copy_modal('Credential Proof', JSON.stringify(result), function(data) {
+				show_copy_modal('Credential Proof', JSON.stringify(result), function (data) {
 					// copyToClipboard(data);
 				});
 			},
-			error: function(result) {
+			error: function (result) {
 				show_modal('Error', 'Server could not complete request.');
 			}
 		});
@@ -146,7 +201,7 @@ window.operateEvents = {
 function validate_form() {
 	const credential_template_form = document.getElementById('show_fields')
 	credential_template_form.classList.add('was-validated');
-	
+
 	if (credential_template_form.checkValidity() === false) {
 		show_modal('Error', 'Please complete all input fields.');
 		return false;
