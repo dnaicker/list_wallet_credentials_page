@@ -167,7 +167,7 @@ window.operateEvents = {
 				const json = JSON.parse(result["proofDocumentJson"]);
 				const data = loop_through_data(json, arr);
 
-				show_copy_modal('Credential Proof', data.join(""), function (data) {
+				show_copy_modal('Credential Proof', result, data.join(""), function (data) {
 					// copyToClipboard(data);
 				});
 			},
@@ -205,10 +205,10 @@ function show_modal(header, body) {
 }
 
 // ------------------------------
-function show_copy_modal(header, body, callback) {
+function show_copy_modal(header, raw_data, body, callback) {
 	$("#copy_modal_header")[0].innerHTML = header;
 	$("#copy_modal_body")[0].innerHTML = "<p>" + body + "</p>";
-	$("#copy_button").attr("data-clipboard-text", body);
+	$("#copy_button").attr("data-clipboard-text", JSON.stringify(raw_data));
 	$("#copy_modal").modal('show');
 	$("#copy_button").on("click", function (e, target, value) {
 		callback(body);
