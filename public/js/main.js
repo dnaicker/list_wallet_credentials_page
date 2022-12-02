@@ -1,4 +1,4 @@
-const ngrok_url = "http://f65a-105-226-241-70.ngrok.io";
+const ngrok_url = "http://6263-146-64-79-183.ngrok.io";
 const auth_token = "CiVodHRwczovL3RyaW5zaWMuaWQvc2VjdXJpdHkvdjEvb2Jlcm9uEkwKKnVybjp0cmluc2ljOndhbGxldHM6VW45TGpFNUVjN0ZCUFRvNzFURFpVQSIedXJuOnRyaW5zaWM6ZWNvc3lzdGVtczpkZWZhdWx0GjCAevCcnadUa3HuncGb_YN6BFwU-jgBzgZZHR4hABloaRWyEVo2T1uqFz0lOTWSrf0iAA"
 let select_template_id = null;
 
@@ -70,11 +70,18 @@ function load_table(data) {
 	$('#list_credentials').bootstrapTable('destroy').bootstrapTable({
 		data: data,
 		detailView: "true",
-		detailViewByClick: "true",
 		detailFormatter: function (index, row) {
-			let data = 	start_process_table(index, row);
-			console.log('start data', data)
-			return data;
+			let arr = []
+			let data = row.data;
+			// console.log(typeof row.data);
+		
+			if (typeof row.data === 'string') {
+				data = JSON.parse(row.data);
+			}
+		
+			const list = loop_through_data(data, arr);
+		
+			return list.join('');
 		},
 		columns: [
 			[{
@@ -104,44 +111,20 @@ function load_table(data) {
 
 
 // ------------------------------
-async function start_process_table (index, row) {
-
-	let myPromise = process_table(index, row);
-
-	let data = myPromise.then(
-		function (value) {
-			return value;
-		});
-
-	return data;
-}
-
-// ------------------------------
-function process_table(index, row) {
-	return new Promise(function (resolve, reject) {
+async function get_credential_schema_data(index, row) {
 		let arr = []
-		let data = row.data;
-		// console.log(typeof row.data);
 
-		if (typeof row.data === 'string') {
-			data = JSON.parse(row.data);
-		}
-
-		loop_through_data(data, arr);
-
-		$.get(data.credentialSchema[0].id, function (data, status) {
-			
-			loop_through_data(data, arr);
-
-			resolve(arr.join(''))
+		let result = await $.get(data.credentialSchema[0].id, function (data, status) {
+			return loop_through_data(data, arr);
 		});
+
+		console.log('get credential schema data', result.join(''));
 
 		// arr.push('<div class="form-check form-switch">');
 		// arr.push('<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">');
 		// arr.push('<label class="form-check-label" for="flexSwitchCheckDefault">Default switch checkbox input</label>');
 
 		// arr.push('</div>');
-	});
 }
 
 // ------------------------------
@@ -180,8 +163,11 @@ window.operateEvents = {
 			url: `${ngrok_url}/createCredentialProof`,
 			type: "POST",
 			success: function (result) {
-				console.log(result);
-				show_copy_modal('Credential Proof', JSON.stringify(result), function (data) {
+				let arr = [];
+				const json = JSON.parse(result["proofDocumentJson"]);
+				const data = loop_through_data(json, arr);
+
+				show_copy_modal('Credential Proof', data.join(""), function (data) {
 					// copyToClipboard(data);
 				});
 			},
