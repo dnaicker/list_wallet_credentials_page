@@ -1,5 +1,5 @@
-const ngrok_url = "http://6263-146-64-79-183.ngrok.io";
-const auth_token = "CiVodHRwczovL3RyaW5zaWMuaWQvc2VjdXJpdHkvdjEvb2Jlcm9uEkwKKnVybjp0cmluc2ljOndhbGxldHM6VW45TGpFNUVjN0ZCUFRvNzFURFpVQSIedXJuOnRyaW5zaWM6ZWNvc3lzdGVtczpkZWZhdWx0GjCAevCcnadUa3HuncGb_YN6BFwU-jgBzgZZHR4hABloaRWyEVo2T1uqFz0lOTWSrf0iAA"
+const ngrok_url = "http://2fd6-2001-4200-7000-9-5db-c11b-2268-da25.ngrok.io";
+const auth_token = "CiVodHRwczovL3RyaW5zaWMuaWQvc2VjdXJpdHkvdjEvb2Jlcm9uEkkKKnVybjp0cmluc2ljOndhbGxldHM6N1VwRmtIUEdvektWUWNFSHVLYVZ3TSIbdXJuOnRyaW5zaWM6ZWNvc3lzdGVtczpDU0lSGjCTwP0t3e2BdAKnkSjJIJN1HMwlexAmvYBUGBzR_DEFkGZebj-IdHu48JKhMrjBdegiAA"
 let select_template_id = null;
 
 // ------------------------------
@@ -86,9 +86,9 @@ function load_table(data) {
 		columns: [
 			[{
 				field: 'id',
-				title: 'Credential Id',
+				title: 'Credential ID',
 				formatter: function (value, row) {
-					return "<a href='javascript:void(0)' class='view_credential'>" + value + "<a>";
+					return "<u><i>" + value + "</i></u>";
 				},
 				events: window.operateEvents,
 			},
