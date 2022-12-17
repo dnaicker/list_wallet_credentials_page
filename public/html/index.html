@@ -39,15 +39,27 @@
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Bootstrap Table CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.1/bootstrap-table.min.css" integrity="sha512-LWPhjCM1g+Vf7cnbYEc3AG20LhMd3uvGDltE4kGPMgzuK5xMdxGqoqpGNkmstaf00vXPCbegOW3LmiDhxKxe+w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
 
 </head>
 
 <body>
   <div class="container col-8">
-    <h2 style="margin-bottom: 20px; margin-top: 20px">List Credentials</h2>
+    <h2 style="margin-bottom: 20px; margin-top: 20px">Verify Credential Proof</h2>
+    
+    <!--  URL -->
+    <label class='form-label'><b>Step 1:</b> Provide URL to send credential proof for verification:</label>
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="URL" aria-label="Recipient's username" >
+      <button class="btn btn-outline-primary" type="button" id="send_proof">Send Proof</button>
+    </div>
+
 
     <!-- load bootstrap table -->
+    <label class='form-label'><b>Step 2:</b> Select credential and fields to send</label><br>
+    <label class='form-label'><b>Step 3:</b> Click send proof</label>
     <table id="list_credentials" data-id-field="id" class="table table-borderless table-hover"></table>
+
   </div>
 
   <!-- load modals -->

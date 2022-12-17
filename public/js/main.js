@@ -1,4 +1,4 @@
-const ngrok_url = "http://2fd6-2001-4200-7000-9-5db-c11b-2268-da25.ngrok.io";
+const ngrok_url = "http://53b9-105-186-223-181.ngrok.io";
 const auth_token = "CiVodHRwczovL3RyaW5zaWMuaWQvc2VjdXJpdHkvdjEvb2Jlcm9uEkkKKnVybjp0cmluc2ljOndhbGxldHM6N1VwRmtIUEdvektWUWNFSHVLYVZ3TSIbdXJuOnRyaW5zaWM6ZWNvc3lzdGVtczpDU0lSGjCTwP0t3e2BdAKnkSjJIJN1HMwlexAmvYBUGBzR_DEFkGZebj-IdHu48JKhMrjBdegiAA"
 let select_template_id = null;
 
@@ -41,7 +41,6 @@ async function get_credentials_for_wallet() {
 		url: `${ngrok_url}/searchWallet`,
 		type: "POST",
 		success: function (result) {
-			console.log(result);
 			const arr = parse_items(result.items);
 
 			load_table(arr);
@@ -69,11 +68,16 @@ function parse_items(data) {
 function load_table(data) {
 	$('#list_credentials').bootstrapTable('destroy').bootstrapTable({
 		data: data,
+		search: "true",
 		detailView: "true",
+		showToggle: "true",
+		showFullScreen: "true",
+		pagination: "true",
+		showPaginationSwitch: "true",
 		detailFormatter: function (index, row) {
 			let arr = []
 			let data = row.data;
-			// console.log(typeof row.data);
+			console.log(typeof row.data);
 		
 			if (typeof row.data === 'string') {
 				data = JSON.parse(row.data);
@@ -83,27 +87,15 @@ function load_table(data) {
 		
 			return list.join('');
 		},
+
 		columns: [
 			[{
 				field: 'id',
 				title: 'Credential ID',
 				formatter: function (value, row) {
-					return "<u><i>" + value + "</i></u>";
+					return "<a href='javascript:void(0)' class='view_credential'>" + value + "</a>";
 				},
 				events: window.operateEvents,
-			},
-			{
-				field: '',
-				title: 'Actions',
-				align: 'center',
-				events: window.operateEvents,
-				formatter: function () {
-					let arr = [];
-
-					arr.push("<button class='btn btn-primary btn-sm generate_proof'>Generate Proof</button>");
-
-					return arr.join("");
-				}
 			}]
 		]
 	})
@@ -131,16 +123,33 @@ async function get_credential_schema_data(index, row) {
 function loop_through_data(data, arr) {
 	$.each(data, function (key, value) {
 		if (typeof value === 'object') {
-			arr.push('<p><b>' + key + ':</b></p>');
-			$.each(value, function (idx, val) {
-				if (typeof idx === 'number') {
-					arr.push('<li>' + val + '</li>')
-				} else {
-					arr.push('<li><u>' + idx + '</u>: ' + val + '</li>')
-				}
-			});
+			if(Array.isArray(value) && typeof value[0] == 'object') {
+
+				arr.push('<p><b>' + key + ':</b></p>');
+
+				// for credential schema traversal
+				$.each(value[0], function (idx, val) {
+					if (typeof idx === 'number') {
+						arr.push('<li>' + val + '</li>')
+					} else {
+						arr.push('<li><u>' + idx + '</u>: ' + val + '</li>')
+					}
+				});
+
+				//for objects in general
+			} else {
+				arr.push('<p><b>' + key + ':</b></p>');
+				$.each(value, function (idx, val) {
+					if (typeof idx === 'number') {
+						arr.push('<li>' + val + '</li>')
+					} else {
+						arr.push('<li><u>' + idx + '</u>: ' + val + '</li>')
+					}
+				});
+			}
+
 			arr.push('<br/>')
-		} else {
+		} else {		 
 			arr.push('<p><b>' + key + ':</b> ' + value + '</p>')
 		}
 	})
@@ -168,7 +177,8 @@ window.operateEvents = {
 				const data = loop_through_data(json, arr);
 
 				show_copy_modal('Credential Proof', result, data.join(""), function (data) {
-					// copyToClipboard(data);
+					alert("Copied to clipboard");
+					copyToClipboard(data);
 				});
 			},
 			error: function (result) {
@@ -178,7 +188,11 @@ window.operateEvents = {
 	},
 	'click .view_credential': function (e, value, row, index) {
 		console.log(row);
-		show_modal('Credential', JSON.stringify(row.data));
+		let arr = [];
+		show_copy_modal('Copy Credential JSON-LD', row.data, loop_through_data(row.data, arr).join(""), function (data) {
+			alert("Credential copied to clipboard");
+			copyToClipboard(data);
+		});
 	}
 }
 
