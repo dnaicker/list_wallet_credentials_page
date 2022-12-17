@@ -75,15 +75,14 @@ function load_table(data) {
 		pagination: "true",
 		showPaginationSwitch: "true",
 		detailFormatter: function (index, row) {
-			let arr = []
 			let data = row.data;
-			console.log(typeof row.data);
-		
+			let list = [];
+
 			if (typeof row.data === 'string') {
 				data = JSON.parse(row.data);
 			}
 		
-			const list = loop_through_data(data, arr);
+			list = loop_through_data(data, []);
 		
 			return list.join('');
 		},
@@ -125,7 +124,7 @@ function loop_through_data(data, arr) {
 		if (typeof value === 'object') {
 			if(Array.isArray(value) && typeof value[0] == 'object') {
 
-				arr.push('<p><b>' + key + ':</b></p>');
+				arr.push('<p><b>' + format_field_names(key) + ':</b></p>');
 
 				// for credential schema traversal
 				$.each(value[0], function (idx, val) {
@@ -138,7 +137,7 @@ function loop_through_data(data, arr) {
 
 				//for objects in general
 			} else {
-				arr.push('<p><b>' + key + ':</b></p>');
+				arr.push('<p><b>' + format_field_names(key) + ':</b></p>');
 				$.each(value, function (idx, val) {
 					if (typeof idx === 'number') {
 						arr.push('<li>' + val + '</li>')
@@ -150,7 +149,7 @@ function loop_through_data(data, arr) {
 
 			arr.push('<br/>')
 		} else {		 
-			arr.push('<p><b>' + key + ':</b> ' + value + '</p>')
+			arr.push('<p><b>' + format_field_names(key) + ':</b> ' + value + '</p>')
 		}
 	})
 	return arr;
@@ -210,6 +209,26 @@ function validate_form() {
 	return true;
 }
 
+
+// ------------------------------
+function format_field_names (params) {
+	let arr = [];
+	var i=1;
+	var character='';
+	arr.push(params[0].toUpperCase());
+	while (i <= params.length){
+			character = params.charAt(i);
+
+			if (character == character.toUpperCase()) {
+					arr.push(' ');
+			}
+
+			arr.push(character);
+			i++;
+	}
+
+	return arr.join("");
+}
 
 // ------------------------------
 function show_modal(header, body) {
