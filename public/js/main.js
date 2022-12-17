@@ -42,7 +42,7 @@ async function get_credentials_for_wallet() {
 		type: "POST",
 		success: function (result) {
 			const arr = parse_items(result.items);
-
+			console.log(arr);
 			load_table(arr);
 		},
 		error: function (result) {
@@ -83,7 +83,10 @@ function load_table(data) {
 			}
 		
 			list = loop_through_data(data, []);
-		
+			
+			list.unshift('<div style="inline-size: calc(50% - 500px); overflow-wrap: break-word;">');
+			list.push('</div>');
+
 			return list.join('');
 		},
 
